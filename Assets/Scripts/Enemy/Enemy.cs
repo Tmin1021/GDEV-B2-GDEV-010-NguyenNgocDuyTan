@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -54,11 +55,11 @@ public class Enemy : MonoBehaviour
 
     private void RandomMove()
     {
-        
+        // Random move when not detect player
     }
 
     private void MoveToTarget()
     {
-        
+        transform.position = Vector3.MoveTowards(transform.position, _playerTransform.position, _currentSpeed * Time.deltaTime);
     }
 }

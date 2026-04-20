@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
     private CircleCollider2D _enemyCollider;
     private float _currentSpeed;
     private Transform _playerTransform;
+    private bool _ifDetectPlayer = false;
     void Awake()
     {
         _enemyCollider = gameObject.GetComponent<CircleCollider2D>();
@@ -20,12 +21,43 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        
+        if(_ifDetectPlayer)
+        {
+            MoveToTarget();
+        }
+        else
+        {
+            RandomMove();
+        }
     }
 
 
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag("Player"))
+        {
+            Player player = collision.GetComponent<Player>();
+            _currentSpeed = player.GetPlayerSpeed() * 1.2f;
+            // MoveToTarget();
+            _ifDetectPlayer = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if(collision.CompareTag("Player"))
+        {
+            _currentSpeed = data.speed;
+            _ifDetectPlayer = false;
+        }
+    }
 
     private void RandomMove()
+    {
+        
+    }
+
+    private void MoveToTarget()
     {
         
     }

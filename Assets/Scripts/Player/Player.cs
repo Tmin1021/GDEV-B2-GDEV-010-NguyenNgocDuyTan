@@ -19,4 +19,9 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+    public float GetPlayerSpeed()
+    {
+        return speed;
+    }
 }

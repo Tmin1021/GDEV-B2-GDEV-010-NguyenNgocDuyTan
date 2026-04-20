@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public static event Action<float> OnHealthChange;
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float health = 3f;
 
     // Update is called once per frame
     void Update()
@@ -23,5 +26,11 @@ public class Player : MonoBehaviour
     public float GetPlayerSpeed()
     {
         return speed;
+    }
+
+    private void TakeDamage(float damage)
+    {
+        health = Math.Max(0, health-damage);
+        OnHealthChange?.Invoke(health);
     }
 }

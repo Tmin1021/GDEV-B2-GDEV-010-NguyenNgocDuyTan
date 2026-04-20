@@ -1,2 +1,1 @@
-Handle enemy and player random movement.
-Handle spawner's spawn position.
+When a bullet hits the edge of the square boundary. It bounces back and continues travelling. The number of bounces is adjustable via a public variable in Inspector. Bullet lifetime is also adjustable via inspector.

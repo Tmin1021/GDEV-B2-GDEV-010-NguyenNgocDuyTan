@@ -4,6 +4,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public static event Action<float> OnHealthChange;
+    public static event Action OnPlayerDied;
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 3f;
@@ -21,6 +22,11 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (health <= 0f)
+        {
+            return;
+        }
+
         if (_damageTimer > 0f)
         {
             _damageTimer -= Time.deltaTime;
@@ -49,20 +55,27 @@ public class Player : MonoBehaviour
         return speed;
     }
 
-    public void TryTakeDamage(float damage)
+    public bool TryTakeDamage(float damage)
     {
         if (_damageTimer > 0f || health <= 0f)
         {
-            return;
+            return false;
         }
 
         TakeDamage(damage);
         _damageTimer = damageCooldown;
+        return true;
     }
 
     private void TakeDamage(float damage)
     {
         health = Math.Max(0, health - damage);
+        if (health <= 0f)
+        {
+            _hasTarget = false;
+            OnPlayerDied?.Invoke();
+        }
+
         OnHealthChange?.Invoke(health);
     }
 }

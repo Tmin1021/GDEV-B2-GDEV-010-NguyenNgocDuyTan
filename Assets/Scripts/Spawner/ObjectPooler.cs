@@ -1,26 +1,30 @@
 using System.Collections.Generic;
-using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
 public class ObjectPooler : MonoBehaviour
 {
-    [SerializeField] private float poolSize = 5;
+    [SerializeField] private int poolSize = 5;
     [SerializeField] private GameObject prefab;
 
     private List<GameObject> _pool;
 
-    void Start()
+    void Awake()
     {
         _pool = new List<GameObject>();
 
-        for(int i = 0; i < poolSize; i++)
+        for (int i = 0; i < poolSize; i++)
         {
             CreateNewObject();
         }
-    } 
+    }
 
     public GameObject CreateNewObject()
     {
+        if (prefab == null)
+        {
+            return null;
+        }
+
         GameObject obj = Instantiate(prefab, transform);
         obj.SetActive(false);
         _pool.Add(obj);
@@ -29,9 +33,9 @@ public class ObjectPooler : MonoBehaviour
 
     public GameObject GetPooledObject()
     {
-        foreach(var obj in _pool)
+        foreach (var obj in _pool)
         {
-            if(!obj.activeSelf)
+            if (!obj.activeSelf)
             {
                 return obj;
             }

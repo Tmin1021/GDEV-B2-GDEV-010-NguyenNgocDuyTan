@@ -1,51 +1,99 @@
-using System.Runtime.CompilerServices;
-using System.Threading;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class UIController : MonoBehaviour
 {
-    [SerializeField] TMP_Text healthText;
-    [SerializeField] GameObject winText;
-    [SerializeField] GameObject loseText;
-    [SerializeField] float winTime = 10f;
-    private float _timer;
-    private bool _lose = false;
+    [SerializeField] private TMP_Text healthText;
+    [SerializeField] private GameObject winText;
+    [SerializeField] private GameObject loseText;
+    [SerializeField] private TMP_Text timeText;
+    [SerializeField] private float winTime = 10f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private float _timer;
+    private bool _lose;
+    private bool _gameEnded;
+
     void OnEnable()
     {
         Player.OnHealthChange += UpdateHealthText;
+        Player.OnPlayerDied += HandlePlayerDied;
     }
+
     void OnDisable()
     {
         Player.OnHealthChange -= UpdateHealthText;
+        Player.OnPlayerDied -= HandlePlayerDied;
     }
 
     void Start()
     {
         _timer = winTime;
+        Time.timeScale = 1f;
+
+        if (winText != null)
+        {
+            winText.SetActive(false);
+        }
+
+        if (loseText != null)
+        {
+            loseText.SetActive(false);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        _timer -= Time.deltaTime;
-        if(_timer == 0f)
+        if (_gameEnded)
         {
-            Time.timeScale = 0f;
-            winText.SetActive(true);
+            return;
         }
-        if(_lose == true)
+
+        _timer -= Time.deltaTime;
+        if (timeText != null)
         {
-            Time.timeScale = 0f;
-            loseText.SetActive(true);
+            timeText.text = $"Timer: {Mathf.CeilToInt(Mathf.Max(_timer, 0f))}";
+        }
+
+        if (_timer <= 0f)
+        {
+            EndGame(true);
         }
     }
 
-    void UpdateHealthText(float currentHealth)
+    private void UpdateHealthText(float currentHealth)
     {
         healthText.text = $"Health: {currentHealth}";
+        if (currentHealth <= 0f)
+        {
+            _lose = true;
+            EndGame(false);
+        }
+    }
+
+    private void HandlePlayerDied()
+    {
+        _lose = true;
+        EndGame(false);
+    }
+
+    private void EndGame(bool won)
+    {
+        if (_gameEnded)
+        {
+            return;
+        }
+
+        _gameEnded = true;
+        Time.timeScale = 0f;
+
+        if (winText != null)
+        {
+            winText.SetActive(won && !_lose);
+        }
+
+        if (loseText != null)
+        {
+            loseText.SetActive(!won || _lose);
+        }
     }
 }

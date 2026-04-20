@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (data == null)
+        if (data == null || !gameObject.activeInHierarchy)
         {
             return;
         }
@@ -44,12 +44,14 @@ public class Enemy : MonoBehaviour
         float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
         if (distanceToPlayer <= data.detectionRange)
         {
-            ChasePlayer();
             if (distanceToPlayer <= attackRange)
             {
                 _player.TryTakeDamage(data.damage);
+                gameObject.SetActive(false);
+                return;
             }
 
+            ChasePlayer();
             return;
         }
 

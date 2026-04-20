@@ -1,45 +1,93 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] ObjectPooler pool;
-    private float _moveInterval = 3f;
+    [SerializeField] private ObjectPooler pool;
+    [SerializeField] private float moveInterval = 3f;
+    [SerializeField] private float spawnDistanceFromPlayer = 5f;
+
     private float _moveTimer;
-    private float _distance = 5f;
     private Transform _playerTransform;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Awake()
     {
-        _playerTransform = GameObject.Find("Player").GetComponent<Transform>();
-    }
-    void Start()
-    {
-        
+        Player player = FindObjectOfType<Player>();
+        if (player != null)
+        {
+            _playerTransform = player.transform;
+        }
     }
 
-    // Update is called once per frame
+    void Start()
+    {
+        _moveTimer = moveInterval;
+        RandomMove();
+    }
+
     void Update()
     {
-        
-        _moveTimer -= _moveInterval;
-        if(_moveTimer <= 0)
+        if (pool == null)
         {
-            RandomMove();
-            SpawnEnemy();
+            return;
         }
+
+        if (_playerTransform == null)
+        {
+            Player player = FindObjectOfType<Player>();
+            if (player == null)
+            {
+                return;
+            }
+
+            _playerTransform = player.transform;
+        }
+
+        _moveTimer -= Time.deltaTime;
+        if (_moveTimer > 0f)
+        {
+            return;
+        }
+
+        _moveTimer = moveInterval;
+        RandomMove();
+        SpawnEnemy();
     }
 
     void RandomMove()
     {
-        // move (teleport) to a random position with a distance from player
+        if (_playerTransform == null)
+        {
+            return;
+        }
 
+        Vector2 randomDirection = Random.insideUnitCircle;
+        if (randomDirection.sqrMagnitude <= 0.001f)
+        {
+            randomDirection = Vector2.right;
+        }
+
+        randomDirection.Normalize();
+        Vector3 spawnOffset = new Vector3(randomDirection.x, randomDirection.y, 0f) * spawnDistanceFromPlayer;
+        Vector3 nextPosition = _playerTransform.position + spawnOffset;
+        nextPosition.z = 0f;
+        transform.position = nextPosition;
     }
 
     void SpawnEnemy()
     {
+        if (pool == null)
+        {
+            return;
+        }
+
         GameObject enemy = pool.GetPooledObject();
+        if (enemy == null)
+        {
+            return;
+        }
+
         enemy.transform.position = transform.position;
+        enemy.transform.rotation = Quaternion.identity;
         enemy.SetActive(true);
     }
 }

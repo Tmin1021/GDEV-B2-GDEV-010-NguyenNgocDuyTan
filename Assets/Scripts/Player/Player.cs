@@ -7,20 +7,20 @@ public class Player : MonoBehaviour
     public static event Action<float> OnHealthChange;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float health = 3f;
+    private Vector3 _targetPos;
 
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        if(Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            RaycastHit2D raycastHit = Physics2D.Raycast(worldPoint, Vector2.zero, Mathf.Infinity);
+        OnHealthChange?.Invoke(health);
+    }
 
-            if(raycastHit.collider != null)
-            {
-                // moving player by clicking mouse
-            }
+    void Update() {
+        if (Input.GetMouseButtonDown(0)) { 
+            _targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            _targetPos.z = 0;
         }
+        // Move towards the target position over time
+        transform.position = Vector3.MoveTowards(transform.position, _targetPos, speed * Time.deltaTime);
     }
 
     public float GetPlayerSpeed()
